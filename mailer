@@ -27,11 +27,6 @@ with open(sys.argv[2], 'r') as f:
     recipients = f.read().splitlines()
 
 msg = MIMEMultipart('alternative')
-msg['From'] = 'poznejfi@fi.muni.cz'
-msg['Sender'] = 'poznejfi@fi.muni.cz'
-msg['Subject'] = 'Re: [PoznejFI] Vstupní úkol'
-msg['Reply-To'] = 'poznejfi@fi.muni.cz'
-
 html_content = open(sys.argv[3], encoding='utf-8').read()
 
 pos = html_content.find('\n\n')
