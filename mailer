@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+
+"""
+Send e-mail to multiple recipients via FI MUNI SMTP.
+
+This scripts sends e-mail message to multiple recipients as separate e-mail
+for each recipient with its own To: header.
+ * E-mail format: html.
+ * Recipients format: text file with each address at separate line.
+E-mail is sent as multipart message with html and text version too. Text version
+is generated via pandoc from html.
+"""
+
+import sys
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from getpass import getpass
+import pypandoc
+
+if len(sys.argv) < 4:
+    sys.stderr.write('Usage: mailer FI-MUNI-login recipients-filename body-filename\n')
+    sys.exit(1)
+
+with open(sys.argv[2], 'r') as f:
+    recipients = f.read().splitlines()
+
+msg = MIMEMultipart('alternative')
+msg['From'] = 'poznejfi@fi.muni.cz'
+msg['Sender'] = 'poznejfi@fi.muni.cz'
+msg['Subject'] = 'Re: [PoznejFI] Vstupní úkol'
+msg['Reply-To'] = 'poznejfi@fi.muni.cz'
+
+html_content = open(sys.argv[3], encoding='utf-8').read()
+txt_content = pypandoc.convert(html_content, 'markdown', format='html')
+
+msg.attach(MIMEText(txt_content, 'plain', 'utf-8'))
+msg.attach(MIMEText(html_content, 'html', 'utf-8'))
+
+print('Connecting to relay.fi.muni.cz...', end='')
+sys.stdout.flush()
+try:
+    s = smtplib.SMTP_SSL('relay.fi.muni.cz')
+    print('OK')
+except Exception as e:
+    sys.stderr.write('\n'+str(e)+'\n')
+    sys.exit(1)
+
+password = getpass('Enter password for %s@relay.fi.muni.cz: ' % (sys.argv[1]))
+try:
+    print('Authenticating...', end='')
+    sys.stdout.flush()
+    s.login(sys.argv[1], password)
+    print('OK')
+except Exception as e:
+    sys.stderr.write('\n'+str(e)+'\n')
+    sys.exit(1)
+
+for recipient in recipients:
+    print('Sending to '+recipient+'...', end='')
+    sys.stdout.flush()
+    del msg['To']
+    msg['To'] = recipient
+    try:
+        s.sendmail(msg['Sender'], recipient, msg.as_string())
+        print('OK')
+    except Exception as e:
+        sys.stderr.write(str(e)+'\n')
