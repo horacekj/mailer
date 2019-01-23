@@ -9,6 +9,11 @@ for each recipient with its own To: header.
 E-mail is sent as multipart message with html and text version too. Text version
 is generated via pandoc from html.
 
+## Usage
+
+Install Python's requirements from `requirements.txt` and just run `mailer`
+script.
+
 ## Example
 
 You may try this example:
