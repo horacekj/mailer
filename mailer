@@ -42,7 +42,7 @@ for header in headers.split('\n'):
         raise Exception('Invalid header: %s' % (header))
 print('---')
 
-txt_content = pypandoc.convert(html_content, 'markdown', format='html')
+txt_content = pypandoc.convert_text(html_content, 'markdown', format='html')
 
 msg.attach(MIMEText(txt_content, 'plain', 'utf-8'))
 msg.attach(MIMEText(html_content, 'html', 'utf-8'))
