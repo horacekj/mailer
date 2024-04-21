@@ -18,6 +18,7 @@ from email.mime.multipart import MIMEMultipart
 from getpass import getpass
 import pypandoc
 import re
+import time
 
 if len(sys.argv) < 4:
     sys.stderr.write('Usage: mailer FI-MUNI-login recipients-filename body-filename\n')
@@ -77,3 +78,4 @@ for recipient in recipients:
         print('OK')
     except Exception as e:
         sys.stderr.write(str(e)+'\n')
+    time.sleep(3)
